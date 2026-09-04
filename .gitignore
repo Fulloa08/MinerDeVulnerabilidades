@@ -1,4 +1,29 @@
-# Entorno virtual
+# Entornos virtuales
 inv/
 venv/
+.venv/
 env/
+
+# Archivos de credenciales y entorno
+.env
+*.pem
+
+# Archivos temporales del Miner (Repositorios clonados, DBs de CodeQL y SARIFs)
+temp/
+cloned_repos/
+codeql_db/
+*.sarif
+
+# Archivos de salida del Miner
+*.json
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Archivos de IDEs
+.vscode/
+.idea/
