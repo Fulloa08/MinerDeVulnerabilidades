@@ -18,7 +18,7 @@ Herramienta CLI en Python para automatizar el análisis estático de seguridad (
 
 ```powershell
 # 1. Proyecto local
-git clone <URL_DE_TU_REPOSITORIO>
+git clone git@github.com:Fulloa08/MinerDeVulnerabilidades.git
 cd "Miner de vulnerabilidades para organizaciones de GitHub"
 python -m venv .venv
 .\.venv\Scripts\activate
@@ -35,7 +35,7 @@ winget install Anchore.syft
 ## Variables de Entorno
 
 ```powershell
-$env:GITHUB_TOKEN="ghp_tuTokenDeGitHubAqui"
+$env:GITHUB_TOKEN="tuTokenDeGitHubAqui"
 
 ```
 
