@@ -1,110 +1,125 @@
 
+
+```markdown
 # Miner de vulnerabilidades en repositorios de GitHub
 
-Herramienta CLI en Python para automatizar el análisis estático de seguridad (SAST) mediante **CodeQL** en repositorios pertenecientes a organizaciones de GitHub. Extrae proyectos vía GitHub REST API, los clona localmente, ejecuta el motor de CodeQL y consolida los resultados en un reporte JSON estructurado.
+Herramienta CLI en Python para automatizar el análisis estático de seguridad (**CodeQL**) y la generación de inventarios de software (**SBOM** con **Syft**) en repositorios de organizaciones de GitHub.
 
 ---
 
 ## Requisitos Previos
 
 * **Python 3.10+**
-* **Git** (configurado en el PATH)
-* **CodeQL CLI** (instalado y agregado al PATH del sistema)
+* **Git**
+* **CodeQL CLI** (para escaneo SAST)
+* **Syft CLI** (para generación de SBOM)
 
 ---
 
 ## Instalación
 
-1. Clonar el repositorio y entrar al directorio:
+```powershell
+# 1. Proyecto local
 git clone <URL_DE_TU_REPOSITORIO>
 cd "Miner de vulnerabilidades para organizaciones de GitHub"
-2. Crear y activar el entorno virtual:
 python -m venv .venv
-..venv\Scripts\activate
-3. Instalar dependencias e instalar el paquete local en modo editable:
+.\.venv\Scripts\activate
 pip install -r requirements.txt
 pip install -e .
+
+# 2. Instalar Syft (Windows)
+winget install Anchore.syft
+
+```
 
 ---
 
 ## Variables de Entorno
 
-Requiere un Personal Access Token (PAT) de GitHub para autenticar peticiones a la API REST.
-
-Asignar la variable en PowerShell:
+```powershell
 $env:GITHUB_TOKEN="ghp_tuTokenDeGitHubAqui"
+
+```
 
 ---
 
 ## Uso de la CLI
 
-Puedes utilizar el comando registrado `miner` o invocar el módulo desde Python:
+### 1. Escaneo de Vulnerabilidades (CodeQL)
 
-### Usando el ejecutable registrado
-
+```powershell
 miner scan --organization expressjs --output results.json
 
-### Usando sintaxis de módulo de Python
+```
 
-python -m miner.cli scan --organization expressjs --output results.json
+### 2. Generación Automatizada de SBOM (Syft)
+
+Genera el inventario en formato **CycloneDX JSON (v1.7)** de forma independiente a CodeQL.
+
+```powershell
+miner generate-sbom --repos-dir ./temp/cloned_repos --organization bottlepy --output-dir ./mis_sboms
+
+```
 
 ---
 
 ## Estructura del Proyecto
+
 ```
-├── src/
-│   └── miner/
-│       ├── **init**.py
-│       ├── cli.py                 # Interfaz de línea de comandos (Typer)
-│       ├── github_client.py       # Cliente REST API de GitHub con paginación
-│       ├── repository_manager.py  # Clonación y limpieza con GitPython
-│       ├── codeql_runner.py       # Ejecución de CodeQL CLI
-│       ├── sarif_parser.py        # Parser SARIF a Pydantic
-│       └── models.py              # Modelos de datos y ordenamiento
-├── tests/                         # Pruebas unitarias con Pytest
-├── pyproject.toml                 # Configuración del paquete
-├── requirements.txt               # Dependencias del proyecto
-├── .env.example                   # Ejemplo de configuración de entorno
-└── README.md                      # Documentación
+├── src/miner/
+│   ├── cli.py                # Interfaz CLI (Typer)
+│   ├── github_client.py      # Cliente REST API de GitHub
+│   ├── repository_manager.py # Gestión de repositorios con GitPython
+│   ├── codeql_runner.py      # Ejecución de CodeQL
+│   ├── sbom_runner.py        # Ejecución de Syft y metadata Git
+│   ├── sarif_parser.py       # Parser SARIF a Pydantic
+│   └── models.py             # Modelos de datos
+├── tests/                    # Pruebas unitarias
+├── pyproject.toml / requirements.txt
+└── README.md
+
 ```
+
 ---
 
-## Formato de Salida (`results.json`)
+## Archivos de Salida (SBOM)
+
+1. **Consolidado General (`sbom_summary_results.json`):** Resumen global con commit, fecha UTC, versión de Syft, estado, total de componentes y ruta individual por repositorio.
+2. **SBOMs Independientes (`[nombre_repo]_sbom.json`):** Inventario CycloneDX con dependencias, versiones, PURL, CPEs y licencias.
+
+---
+
+## Ejemplo y Contraste de Componentes
+
+1. **Ejecutar generación:**
+```powershell
+miner generate-sbom --repos-dir ./temp/cloned_repos --organization bottlepy --output-dir ./mis_sboms
+
 ```
-{
-"organization": "expressjs",
-"summary": {
-"repositories": 50,
-"analyzed": 35,
-"failed": 0,
-"unsupported": 15,
-"findings": 4
-},
-"repositories": [
-{
-"name": "express",
-"url": "[https://github.com/expressjs/express](https://github.com/expressjs/express)",
-"status": "analyzed",
-"languages": ["javascript"],
-"findings": [
-{
-"rule_id": "js/unvalidated-dynamic-method-call",
-"severity": "warning",
-"message": "Unvalidated dynamic method call.",
-"file": "lib/response.js",
-"start_line": 102
-}
-]
-}
-]
-}
-```
+
+
+2. **Verificación de componentes:**
+* **SBOM (`WebGoat_sbom.json`):** Reporta `com.google.guava:guava` v`33.7.1-jre`.
+
+
+* **Manifest (`pom.xml`):** Se contrasta contra la declaración `<dependency>` en el archivo real del proyecto.
+
+
+* **Workflows (`.github/workflows/build.yml`):** Detecta acciones de CI/CD como `actions/checkout@v7`.
+
+
+
+
+
 ---
 
 ## Pruebas Unitarias
 
-Ejecutar pruebas automatizadas con:
-
+```bash
 pytest
+
 ```
 
+```
+
+```
