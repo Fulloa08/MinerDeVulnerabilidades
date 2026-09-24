@@ -1,6 +1,4 @@
 
-
-```markdown
 # Miner de vulnerabilidades en repositorios de GitHub
 
 Herramienta CLI en Python para automatizar el análisis estático de seguridad (**CodeQL**) y la generación de inventarios de software (**SBOM** con **Syft**) en repositorios de organizaciones de GitHub.
@@ -65,13 +63,13 @@ miner generate-sbom --repos-dir ./temp/cloned_repos --organization bottlepy --ou
 
 ## Estructura del Proyecto
 
-```
+```text
 ├── src/miner/
 │   ├── cli.py                # Interfaz CLI (Typer)
 │   ├── github_client.py      # Cliente REST API de GitHub
 │   ├── repository_manager.py # Gestión de repositorios con GitPython
 │   ├── codeql_runner.py      # Ejecución de CodeQL
-│   ├── sbom_runner.py        # Ejecución de Syft y metadata Git
+│   ├── sbom_service.py        # Ejecución de Syft y metadata Git
 │   ├── sarif_parser.py       # Parser SARIF a Pydantic
 │   └── models.py             # Modelos de datos
 ├── tests/                    # Pruebas unitarias
@@ -99,7 +97,7 @@ miner generate-sbom --repos-dir ./temp/cloned_repos --organization bottlepy --ou
 
 
 2. **Verificación de componentes:**
-* **SBOM (`WebGoat_sbom.json`):** Reporta `com.google.guava:guava` v`33.7.1-jre`.
+* **SBOM (`WebGoat_sbom.json`):** Reporta `com.google.guava:guava` v33.7.1-jre.
 
 
 * **Manifest (`pom.xml`):** Se contrasta contra la declaración `<dependency>` en el archivo real del proyecto.
@@ -118,6 +116,11 @@ miner generate-sbom --repos-dir ./temp/cloned_repos --organization bottlepy --ou
 ```bash
 pytest
 
+```
+
+```
+
+```
 ```
 
 ```
